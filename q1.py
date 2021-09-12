@@ -1,7 +1,7 @@
 import numpy as np
 import numpy.testing as npt
 import time
-
+#/* THIS CODE IS MY OWN WORK, IT WAS WRITTEN WITHOUT CONSULTING CODE WRITTEN BY OTHER STUDENTS. Abdullah Hamid */
 
 def gen_random_samples():
     """

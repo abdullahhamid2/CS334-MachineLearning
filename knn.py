@@ -1,8 +1,9 @@
 import argparse
 import numpy as np
 import pandas as pd
+import math
 
-
+#/* THIS CODE IS MY OWN WORK, IT WAS WRITTEN WITHOUT CONSULTING CODE WRITTEN BY OTHER STUDENTS. Abdullah Hamid */
 class Knn(object):
     k = 0    # number of neighbors to use
 
@@ -12,7 +13,7 @@ class Knn(object):
 
         Parameters
         ----------
-        k : int 
+        k : int
             Number of neighbors to use.
         """
         self.k = k
@@ -24,7 +25,7 @@ class Knn(object):
         Parameters
         ----------
         xFeat : nd-array with shape n x d
-            Training data 
+            Training data
         y : 1d array with shape n
             Array of labels associated with training data.
 
@@ -33,18 +34,23 @@ class Knn(object):
         self : object
         """
         # TODO do whatever you need
+        if type(xFeat) != np.ndarray:
+            self.features = xFeat.to_numpy()
+            self.labels = y
+        else:
+            self.features = xFeat
+            self.labels = y
         return self
-
 
     def predict(self, xFeat):
         """
-        Given the feature set xFeat, predict 
+        Given the feature set xFeat, predict
         what class the values will have.
 
         Parameters
         ----------
         xFeat : nd-array with shape m x d
-            The data to predict.  
+            The data to predict.
 
         Returns
         -------
@@ -53,9 +59,43 @@ class Knn(object):
         """
         yHat = [] # variable to store the estimated class label
         # TODO
+        if type(xFeat) != np.ndarray:
+            xFeat = xFeat.to_numpy()
+        #euclidean_distance(self.features, xFeat)
+        distances = []
+        for testrow in xFeat:
+            count = 0
+            for trainrow in self.features:
+                dist = 0
+                rowsum = []
+                for i in range(len(testrow)):
+                    dist = math.pow(abs(testrow[i] - trainrow[i]), 2)
+                    dist = math.pow(dist, 0.5)
+                    rowsum.append(dist)
+                sums = 0
+                for element in range(0, len(rowsum)):
+                    sums += rowsum[element]
+                distances.append(sums)
+            distances.sort()
+        print(distances)
         return yHat
 
 
+#def euclidean_distance(train,test):
+    # distances = []
+    # for testrow in test:
+    #     count = 0
+    #     for trainrow in train:
+    #         dist = 0
+    #         rowsum = []
+    #         for i in range(len(testrow)):
+    #             dist = math.pow(abs(testrow[i] - trainrow[i]), 2)
+    #             dist = math.pow(dist, 1/2)
+    #             rowsum.append(dist)
+    #         sums = 0
+    #         for element in range(0,len(rowsum)):
+    #             sums += rowsum[element]
+    #         distances.append(sums)
 def accuracy(yHat, yTrue):
     """
     Calculate the accuracy of the prediction
