@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import math
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 
 class Knn(object):
@@ -87,6 +88,7 @@ class Knn(object):
                 yHat.append([0])                # otherwise classify test sample as 0
             x += 1
         return yHat
+
 def euclidean_distance(n1,n2,x):
     dist = 0
     dist += math.pow(abs((n1 - n2)), x)
@@ -116,10 +118,29 @@ def accuracy(yHat, yTrue):
             acc += 1
     acc = (acc / len(yTrue))
     return acc            # return the num correct / total test samples
-
+# def plotdata(feautures, labels, testfeatures, testlabels, k):
+#     acc = np.empty([40, 2])
+#     for i in range(1,40):
+#         knn = Knn(i)
+#         knn.train(feautures, labels['label'])
+#         prediction = knn.predict(feautures)
+#         trainacc = accuracy(prediction, labels['label'])
+#         test = knn.predict(testfeatures)
+#         testacc = accuracy(test, testlabels['label'])
+#         acc[i-1][0] = trainacc
+#         acc[i-1][1] = testacc
+#                 # set up plot to print the accuracy of test and training data for varying values of k
+#         plt.title("Training and Testing Accuracy for K-Nearest Neighbors Algorithm")
+#         plt.xlabel("K value")
+#         plt.ylabel("Percent accurate")
+#         plt.plot([i for i in range(1, k + 1)], acc)  # start plot from 1, not 0 (default)
+#         plt.legend(("Training Accuracy", "Testing Accuracy"))
+#         plt.show()
+#         def plot(k,trainAcc, testAcc):
+#             sns.lineplot(data=trainAcc, x='k', y='accuracy')
 def performance(xTrain, yTrain, xTest, yTest, k):
     acc = np.empty([k, 2])
-    for i in range(1, k+1):             # for i=1 to k
+    for i in range(1, k):             # for i=1 to k
         knn = Knn(i)                    # run the KNN classifier and record the accuracy for test and training data
         knn.train(xTrain, yTrain['label'])
         yHatTrain = knn.predict(xTrain)
@@ -129,13 +150,37 @@ def performance(xTrain, yTrain, xTest, yTest, k):
         acc[i - 1][0] = trainAcc
         acc[i - 1][1] = testAcc
 
-        # set up plot to print the accuracy of test and training data for varying values of k
-        plt.title("Training and Testing Accuracy for K-Nearest Neighbors Algorithm")
-        plt.xlabel("K value")
-        plt.ylabel("Percent accurate")
-        plt.plot([i for i in range(1, k + 1)], acc)  # start plot from 1, not 0 (default)
-        plt.legend(("Training Accuracy", "Testing Accuracy"))
-        plt.show()
+    # set up plot to print the accuracy of test and training data for varying values of k
+    plt.title("Training and Testing Accuracy for K-Nearest Neighbors Algorithm")
+    plt.xlabel("K value")
+    plt.ylabel("Percent accurate")
+    plt.plot([i for i in range(1, k+1)], acc)       # start plot from 1, not 0 (default)
+    plt.legend(("Training Accuracy", "Testing Accuracy"))
+    plt.show()
+
+
+# def performance(xTrain, yTrain, xTest, yTest, k):
+#     acc = np.empty([k, 2])
+#     for i in range(1, k+1):             # for i=1 to k
+#         knn = Knn(i)                    # run the KNN classifier and record the accuracy for test and training data
+#         knn.train(xTrain, yTrain['label'])
+#         yHatTrain = knn.predict(xTrain)
+#         trainAcc = accuracy(yHatTrain, yTrain['label'])
+#         yHatTest = knn.predict(xTest)
+#         testAcc = accuracy(yHatTest, yTest['label'])
+#         acc[i - 1][0] = trainAcc
+#         acc[i - 1][1] = testAcc
+#
+#         # set up plot to print the accuracy of test and training data for varying values of k
+#         plt.title("Training and Testing Accuracy for K-Nearest Neighbors Algorithm")
+#         plt.xlabel("K value")
+#         plt.ylabel("Percent accurate")
+#         plt.plot([i for i in range(1, k + 1)], acc)  # start plot from 1, not 0 (default)
+#         plt.legend(("Training Accuracy", "Testing Accuracy"))
+#         plt.show()
+#         def plot(k,trainAcc, testAcc):
+    #sns.lineplot(data=trainAcc, x='k', y='accuracy')
+
 def main():
     """
     Main file to run from the command line.
@@ -177,6 +222,7 @@ def main():
     print("Test Acc:", testAcc)
 
     performance(xTrain, yTrain, xTest, yTest, args.k)
+    #plot(knn, trainAcc, testAcc)
 
 if __name__ == "__main__":
     main()
