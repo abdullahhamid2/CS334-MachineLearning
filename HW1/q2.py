@@ -17,7 +17,7 @@ def q2b():
     boxplot.set_xlabel("Species Type", fontsize=10)
     boxplot.set_ylabel("sepal length (cm)", fontsize=10)
     boxplot.get_figure().savefig('q2b - sepal length.png')
-    #plt.clf()
+    plt.clf()
 
     #boxplot for sepal width
     boxplot = sns.boxplot(x='species', y='sepal_width', data=dFrame)

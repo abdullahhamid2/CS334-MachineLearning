@@ -1,6 +1,12 @@
 import argparse
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+from knn import accuracy
+from knn import Knn
+from sklearn.preprocessing import StandardScaler
+from sklearn.preprocessing import MinMaxScaler
+#/* THIS CODE IS MY OWN WORK, IT WAS WRITTEN WITHOUT CONSULTING CODE WRITTEN BY OTHER STUDENTS. Abdullah Hamid */
 
 import knn
 
@@ -15,19 +21,21 @@ def standard_scale(xTrain, xTest):
     Parameters
     ----------
     xTrain : nd-array with shape n x d
-        Training data 
+        Training data
     xTest : nd-array with shape m x d
-        Test data 
+        Test data
 
     Returns
     -------
     xTrain : nd-array with shape n x d
-        Transformed training data with mean 0 and unit variance 
+        Transformed training data with mean 0 and unit variance
     xTest : nd-array with shape m x d
         Transformed test data using same process as training.
     """
     # TODO FILL IN
-    return xTrain, xTest
+    standar_scaler = StandardScaler()
+    standar_scaler.fit(xTrain)
+    return standar_scaler.transform(xTrain), standar_scaler.transform(xTest)
 
 
 def minmax_range(xTrain, xTest):
@@ -41,9 +49,9 @@ def minmax_range(xTrain, xTest):
     Parameters
     ----------
     xTrain : nd-array with shape n x d
-        Training data 
+        Training data
     xTest : nd-array with shape m x d
-        Test data 
+        Test data
 
     Returns
     -------
@@ -53,7 +61,9 @@ def minmax_range(xTrain, xTest):
         Transformed test data using same process as training.
     """
     # TODO FILL IN
-    return xTrain, xTest
+    minmax_scaler = MinMaxScaler()
+    minmax_scaler.fit(xTrain)
+    return minmax_scaler.transform(xTrain), minmax_scaler.transform((xTest))
 
 
 def add_irr_feature(xTrain, xTest):
@@ -64,9 +74,9 @@ def add_irr_feature(xTrain, xTest):
     Parameters
     ----------
     xTrain : nd-array with shape n x d
-        Training data 
+        Training data
     xTest : nd-array with shape m x d
-        Test data 
+        Test data
 
     Returns
     -------
@@ -76,6 +86,12 @@ def add_irr_feature(xTrain, xTest):
         Test data with 2 new noisy Gaussian features
     """
     # TODO FILL IN
+    xTrain['irrelevant1'] = np.random.normal(0, 1, len(xTrain.index))
+    xTrain['irrelevent2'] = np.random.normal(0, 1, len(xTrain.index))
+
+    xTest['irrelevant1'] = np.random.normal(0, 1, len(xTest.index))
+    xTest['irrelevant2'] = np.random.normal(0, 1, len(xTest.index))
+
     return xTrain, xTest
 
 
@@ -90,11 +106,11 @@ def knn_train_test(k, xTrain, yTrain, xTest, yTest):
     k : int
         The number of neighbors
     xTrain : nd-array with shape n x d
-        Training data 
+        Training data
     yTrain : 1d array with shape n
         Array of labels associated with training data.
     xTest : nd-array with shape m x d
-        Test data 
+        Test data
     yTest : 1d array with shape m
         Array of labels associated with test data.
 
@@ -108,7 +124,25 @@ def knn_train_test(k, xTrain, yTrain, xTest, yTest):
     # predict the test dataset
     yHatTest = model.predict(xTest)
     return knn.accuracy(yHatTest, yTest['label'])
-    
+
+def plotter(k, xTrain, yTrain, xTest, yTest):
+    results_array = np.empty([k, 4])
+    for i in range(1, k + 1):  # loop through values of K from 1 to K
+        results_array[i - 1][0] = knn_train_test(i, xTrain, yTrain, xTest, yTest)
+        x_train_standardscaler, x_test_standardscaler = standard_scale(xTrain, xTest)
+        results_array[i - 1][1] = knn_train_test(i, x_train_standardscaler, yTrain, x_test_standardscaler, yTest)
+        x_train_minimax, x_test_minimax = minmax_range(xTrain, xTest)
+        results_array[i - 1][2] = knn_train_test(i, x_train_minimax, yTrain, x_test_minimax, yTest)
+        x_train_irr, y_train_irr = add_irr_feature(xTrain, xTest)
+        results_array[i - 1][3] = knn_train_test(i, x_train_irr, yTrain, y_train_irr, yTest)
+    # set up figure to display results_array of pre-processing with different values of K
+    plt.title("Training and Testing Accuracy (KNN)")
+    plt.xlabel("K(input)")
+    plt.ylabel("Percent Accuracy")
+    plt.plot([i for i in range(1, k + 1)], results_array)  # start plotting from 1 (default 0)
+    plt.legend(("No Pre-processing", "Standard Scaling", "Min-Max Scaling", "Irrelevant Features"))
+    plt.show()
+
 
 def main():
     # set up the program to take in arguments from the command line
@@ -151,6 +185,9 @@ def main():
     xTrainIrr, yTrainIrr = add_irr_feature(xTrain, xTest)
     acc4 = knn_train_test(args.k, xTrainIrr, yTrain, yTrainIrr, yTest)
     print("Test Acc (with irrelevant feature):", acc4)
+
+    #plot the results
+    plotter(args.k, xTrain, yTrain, xTest, yTest)
 
 if __name__ == "__main__":
     main()
