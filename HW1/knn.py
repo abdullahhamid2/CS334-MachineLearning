@@ -4,7 +4,6 @@ import pandas as pd
 import math
 import matplotlib.pyplot as plt
 import seaborn as sns
-#/* THIS CODE IS MY OWN WORK, IT WAS WRITTEN WITHOUT CONSULTING CODE WRITTEN BY OTHER STUDENTS. Abdullah Hamid */
 
 
 class Knn(object):
@@ -13,6 +12,7 @@ class Knn(object):
     def __init__(self, k):
         """
         Knn constructor
+
         Parameters
         ----------
         k : int
@@ -24,12 +24,14 @@ class Knn(object):
     def train(self, xFeat, y):
         """
         Train the k-nn model.
+
         Parameters
         ----------
         xFeat : nd-array with shape n x d
             Training data
         y : 1d array with shape n
             Array of labels associated with training data.
+
         Returns
         -------
         self : object
@@ -45,10 +47,12 @@ class Knn(object):
         """
         Given the feature set xFeat, predict
         what class the values will have.
+
         Parameters
         ----------
         xFeat : nd-array with shape m x d
             The data to predict.
+
         Returns
         -------
         yHat : 1d array or list with shape m
@@ -56,7 +60,7 @@ class Knn(object):
         """
         yHat = [] # variable to store the estimated class label
         # TODO
-        if type(xFeat) != np.ndarray:           #convert to numpy
+        if type(xFeat) != np.ndarray:           # if the data isn't a numpy array, eg dataframe, convert to numpy
             xFeat = xFeat.to_numpy()
         x = 0
         for testfeatures in xFeat:                      # for each row of test data
@@ -64,7 +68,7 @@ class Knn(object):
             i = 0
             for row in self.features:             # iterate through each row of training data
                 sums = 0
-                for index in range(len(testfeatures)):  # calculate euclidean distance
+                for index in range(len(testfeatures)):  # then iterate through each feature in a row to calculate mikowski dist
                     #sums += math.pow(abs(testfeatures[index] - row[index]), len(testfeatures))
                     #sums = math.pow(sums,0.5)
                     sums += euclidean_distance(testfeatures[index], row[index], 2)
@@ -73,19 +77,19 @@ class Knn(object):
             distances.sort(key=lambda tup: tup[1])
             output = distances
             majority_vote = 0
-            for index in range(self.k):
-                if output[index][0] == 1.0:   #look into the outputs and count the 1's and 0's and find the majority winner
+            for index in range(self.k):   # get the k smallest distances and their classifications
+                if output[index][0] == 1.0:   # if equal to one, add one to vote
                     majority_vote += 1
-                else:
+                else:                               # otherwise, subtract one from vote
                     majority_vote -= 1
-            if majority_vote >= 0:
+            if majority_vote >= 0:                     # if the final vote is positive or 0, then classify test sample as one
                 yHat.append([1])
             else:
-                yHat.append([0])
+                yHat.append([0])                # otherwise classify test sample as 0
             x += 1
         return yHat
 
-def euclidean_distance(n1,n2,x):   #calculating euclidean distance. 
+def euclidean_distance(n1,n2,x):
     dist = 0
     dist += math.pow(abs((n1 - n2)), x)
     #dist = math.pow(dist, 0.5)
@@ -94,12 +98,14 @@ def euclidean_distance(n1,n2,x):   #calculating euclidean distance.
 def accuracy(yHat, yTrue):
     """
     Calculate the accuracy of the prediction
+
     Parameters
     ----------
     yHat : 1d-array with shape n
         Predicted class label for n samples
     yTrue : 1d-array with shape n
         True labels associated with the n samples
+
     Returns
     -------
     acc : float between [0,1]
@@ -107,31 +113,74 @@ def accuracy(yHat, yTrue):
     """
     # TODO calculate the accuracy
     acc = 0
-    length = len(yHat)
-    for index in range(length):
+    for index in range(len(yHat)):          # count the number of correct classifications
         if yHat[index] == yTrue[index]:
             acc += 1
     acc = (acc / len(yTrue))
-    return acc           # return (num correct / total test samples)
-
-def plot_data(k, x_features, y_labels, x_testing, y_testing):
-    plotter = np.empty([k, 2])
+    return acc            # return the num correct / total test samples
+# def plotdata(feautures, labels, testfeatures, testlabels, k):
+#     acc = np.empty([40, 2])
+#     for i in range(1,40):
+#         knn = Knn(i)
+#         knn.train(feautures, labels['label'])
+#         prediction = knn.predict(feautures)
+#         trainacc = accuracy(prediction, labels['label'])
+#         test = knn.predict(testfeatures)
+#         testacc = accuracy(test, testlabels['label'])
+#         acc[i-1][0] = trainacc
+#         acc[i-1][1] = testacc
+#                 # set up plot to print the accuracy of test and training data for varying values of k
+#         plt.title("Training and Testing Accuracy for K-Nearest Neighbors Algorithm")
+#         plt.xlabel("K value")
+#         plt.ylabel("Percent accurate")
+#         plt.plot([i for i in range(1, k + 1)], acc)  # start plot from 1, not 0 (default)
+#         plt.legend(("Training Accuracy", "Testing Accuracy"))
+#         plt.show()
+#         def plot(k,trainAcc, testAcc):
+#             sns.lineplot(data=trainAcc, x='k', y='accuracy')
+def performance(xTrain, yTrain, xTest, yTest, k):
+    acc = np.empty([k, 2])
     for i in range(1, k):             # for i=1 to k
-        knn = Knn(i)
-        knn.train(x_features, y_labels['label'])
-        label_trainer = knn.predict(x_features)
-        trainer_accuracy = accuracy(label_trainer, y_labels['label'])
-        y_hat_test = knn.predict(x_testing)
-        test_acc = accuracy(y_hat_test, y_testing['label'])
-        plotter[i - 1][0] = trainer_accuracy
-        plotter[i - 1][1] = test_acc
-    # setting up plot
-    plt.title("Training and Testing Accuracy(KNN Algorithm)")
-    plt.ylabel("Accuracy")
-    plt.xlabel("K(input)")
-    plt.plot([i for i in range(1, k+1)], plotter)       # start plot from 1, not 0 (default)
+        knn = Knn(i)                    # run the KNN classifier and record the accuracy for test and training data
+        knn.train(xTrain, yTrain['label'])
+        yHatTrain = knn.predict(xTrain)
+        trainAcc = accuracy(yHatTrain, yTrain['label'])
+        yHatTest = knn.predict(xTest)
+        testAcc = accuracy(yHatTest, yTest['label'])
+        acc[i - 1][0] = trainAcc
+        acc[i - 1][1] = testAcc
+
+    # set up plot to print the accuracy of test and training data for varying values of k
+    plt.title("Training and Testing Accuracy for K-Nearest Neighbors Algorithm")
+    plt.xlabel("K value")
+    plt.ylabel("Percent accurate")
+    plt.plot([i for i in range(1, k+1)], acc)       # start plot from 1, not 0 (default)
     plt.legend(("Training Accuracy", "Testing Accuracy"))
     plt.show()
+
+
+# def performance(xTrain, yTrain, xTest, yTest, k):
+#     acc = np.empty([k, 2])
+#     for i in range(1, k+1):             # for i=1 to k
+#         knn = Knn(i)                    # run the KNN classifier and record the accuracy for test and training data
+#         knn.train(xTrain, yTrain['label'])
+#         yHatTrain = knn.predict(xTrain)
+#         trainAcc = accuracy(yHatTrain, yTrain['label'])
+#         yHatTest = knn.predict(xTest)
+#         testAcc = accuracy(yHatTest, yTest['label'])
+#         acc[i - 1][0] = trainAcc
+#         acc[i - 1][1] = testAcc
+#
+#         # set up plot to print the accuracy of test and training data for varying values of k
+#         plt.title("Training and Testing Accuracy for K-Nearest Neighbors Algorithm")
+#         plt.xlabel("K value")
+#         plt.ylabel("Percent accurate")
+#         plt.plot([i for i in range(1, k + 1)], acc)  # start plot from 1, not 0 (default)
+#         plt.legend(("Training Accuracy", "Testing Accuracy"))
+#         plt.show()
+#         def plot(k,trainAcc, testAcc):
+    #sns.lineplot(data=trainAcc, x='k', y='accuracy')
+
 def main():
     """
     Main file to run from the command line.
@@ -171,7 +220,9 @@ def main():
     testAcc = accuracy(yHatTest, yTest['label'])
     print("Training Acc:", trainAcc)
     print("Test Acc:", testAcc)
-    plot_data(args.k, xTrain, yTrain, xTest, yTest)
-    #plot_data(knn, trainAcc, testAcc)
+
+    performance(xTrain, yTrain, xTest, yTest, args.k)
+    #plot(knn, trainAcc, testAcc)
+
 if __name__ == "__main__":
     main()
