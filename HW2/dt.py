@@ -1,13 +1,36 @@
+#/* THIS CODE IS MY OWN WORK, IT WAS WRITTEN WITHOUT CONSULTING CODE
+#WRITTEN BY OTHER STUDENTS.
+#Abdullah Hamid*/
 import argparse
 import numpy as np
 import pandas as pd
 from sklearn.metrics import accuracy_score
 
+class Node:
+    left = None
+    right = None
+    xFeats = None
+    labels = None
+    classification = None   #The Guess
+    featName = None
+    featValue = None
+
+    def __init__(self, left, right, xFeats, labels, classification, featName, featValue):
+        self.left = left
+        self.right = right
+        self.xFeats = xFeats
+        self.labels = labels
+        self.classification = classification
+        self.featName = featName
+        self.featValue = featValue
 
 class DecisionTree(object):
     maxDepth = 0       # maximum depth of the decision tree
     minLeafSample = 0  # minimum number of samples in a leaf
     criterion = None   # splitting criterion
+    #root = None
+    tree = None
+    depth = 0
 
     def __init__(self, criterion, maxDepth, minLeafSample):
         """
@@ -27,6 +50,8 @@ class DecisionTree(object):
         self.criterion = criterion
         self.maxDepth = maxDepth
         self.minLeafSample = minLeafSample
+        self.tree = None
+
 
     def train(self, xFeat, y):
         """
@@ -44,6 +69,7 @@ class DecisionTree(object):
         self : object
         """
         # TODO do whatever you need
+
         return self
 
 
@@ -114,7 +140,8 @@ def main():
     parser.add_argument("mls",
                         type=int,
                         help="minimum leaf samples")
-    parser.add_argument("--xTrain"                        default="q4xTrain.csv",
+    parser.add_argument("--xTrain",
+                        default="q4xTrain.csv",
                         help="filename for features of the training data")
     parser.add_argument("--yTrain",
                         default="q4yTrain.csv",
