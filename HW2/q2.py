@@ -5,6 +5,7 @@ import argparse
 import numpy as np
 import pandas as pd
 from sklearn import metrics
+import sklearn.model_selection as skms
 from sklearn.tree import DecisionTreeClassifier
 import time
 
@@ -38,6 +39,11 @@ def holdout(model, xFeat, y, testSize):
     testAuc = 0
     timeElapsed = 0
     # TODO fill int
+    start = time.time()
+    xTrain, xTest, yTrain, yTest = skms.train_test_split(xFeat, y, test_size=testSize)
+    trainAuc, testAuc = sktree_train_test(model, xTrain, yTrain, xTest, yTest)
+    finalTime = time.time()
+    timeElapsed = finalTime - start
     return trainAuc, testAuc, timeElapsed
 
 
@@ -73,8 +79,18 @@ def kfold_cv(model, xFeat, y, k):
     testAuc = 0
     timeElapsed = 0
     # TODO FILL IN
+    start = time.time()
+    kf = skms.KFold(n_splits=k)
+    for trainIndex, testIndex in kf.split(xFeat):
+        xTrain, xTest = xFeat.iloc[trainIndex], xFeat.iloc[testIndex]
+        yTrain, yTest = y.iloc[trainIndex], y.iloc[testIndex]
+        temp1, temp2 = sktree_train_test(model, xTrain, yTrain, xTest, yTest)
+        trainAuc = trainAuc + temp1
+        testAuc = testAuc + temp2
+    timeElapsed = time.time() - start
+    trainAuc = trainAuc / k
+    testAuc = testAuc / k
     return trainAuc, testAuc, timeElapsed
-
 
 def mc_cv(model, xFeat, y, testSize, s):
     """
@@ -109,6 +125,17 @@ def mc_cv(model, xFeat, y, testSize, s):
     testAuc = 0
     timeElapsed = 0
     # TODO FILL IN
+    start = time.time()
+    for sample in range(s):
+        temp1, temp2, temp3 = holdout(model, xFeat, y, testSize)
+        trainAuc = trainAuc + temp1
+        testAuc = testAuc + temp2
+        timeElapsed = timeElapsed + temp3
+    finalTime = time.time()
+    timeElapsed = finalTime - start
+    trainAuc = trainAuc / s
+    testAuc = testAuc / s
+
     return trainAuc, testAuc, timeElapsed
 
 

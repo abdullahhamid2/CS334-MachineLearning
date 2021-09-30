@@ -1,3 +1,5 @@
+#/* THIS CODE IS MY OWN WORK, IT WAS WRITTEN WITHOUT CONSULTING CODE WRITTEN BY OTHER STUDENTS. Abdullah Hamid */
+
 import argparse
 import numpy as np
 import pandas as pd
@@ -89,26 +91,22 @@ class DecisionTree(object):
         maxDepth = self.maxDepth
         featLength = len(xFeat)
         finalValue, finalGini, finalEntropy, finalFeature = 0, 1000, 1000, None  # Integer_MAX_VALUE?
-        if len(length) == 1:
-            return Node(xFeat, y, None, None, classification, None, None)
-        elif depth >= maxDepth: # if depth is greater than max depth
-            return Node(xFeat, y, None, None, classification, None, None)
-        elif(featLength< minLeaves):  # if remaining features is empty
+        if (len(length) == 1 or depth >= maxDepth or featLength<minLeaves):
             return Node(xFeat, y, None, None, classification, None, None)
         else:
             for featName, feature in xFeat.iteritems():
                 for value in xFeat[featName].unique():
                     leftX, leftY, rightX, rightY = split(xFeat, y, featName, value)
                     if self.criterion == 'gini':
-                        leftGini = get_gini(leftY)
-                        rightGini = get_gini(rightY)
-                        averageG = (leftGini * len(leftY) + rightGini * len(rightY)) / len(y)
-                        if averageG <= finalGini:
+                        leftGini, rightGini = get_gini(leftY), get_gini(rightY)
+                        averageG = (leftGini * len(leftY)
+                                    + rightGini * len(rightY)) / len(y)
+                        if(averageG < finalGini and averageG<1):
                             finalGini, finalValue, finalFeature = averageG, value, featName
                     elif self.criterion == 'entropy':
                         entropy = (len(leftY)/len(y) * get_entropy(leftY))\
                                 + (len(rightY)/len(y) * get_entropy(rightY))
-                        if entropy <= finalEntropy:
+                        if(entropy < finalEntropy and entropy>0):
                             finalValue, finalFeature, finalEntropy = value, featName, entropy
             tree = Node(xFeat, y, None, None, y.value_counts().idxmax(), finalFeature, finalValue)
             leftX, leftY, rightX, rightY = split(xFeat, y, finalFeature, finalValue)
@@ -131,15 +129,6 @@ class DecisionTree(object):
         """
         self.tree = self.grow_tree(xFeat, y, 0)
         return self
-
-    # def dtTest(self, tree, sample):
-    #     if tree.right is None and tree.left is None:
-    #         return tree.classification
-    #     elif tree.right is not None and sample[tree.featName] > tree.featVal:
-    #         return self.dtTest(tree.right, sample)
-    #     elif tree.left is not None and sample[tree.featName] <= tree.featVal:
-    #         return self.dtTest(tree.left, sample)
-    #     return tree.classification
 
     def predict(self, xFeat):
         """
