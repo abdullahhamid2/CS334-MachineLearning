@@ -1,3 +1,6 @@
+#/* THIS CODE IS MY OWN WORK, IT WAS WRITTEN WITHOUT CONSULTING CODE
+#WRITTEN BY OTHER STUDENTS.
+#Abdullah Hamid*/
 import argparse
 import numpy as np
 import pandas as pd
@@ -32,9 +35,6 @@ def param_to_dt(model, parameters, xTrain, yTrain, xTest, yTest):
     return pd.DataFrame(result)
 
 def train_test(model, xTrain, yTrain, xTest, yTest):
-    """
-    Given a sklearn train/test calculate the auc
-    """
     model.fit(xTrain, yTrain)
     yHatTrain = model.predict_proba(xTrain)
     yHatTest = model.predict_proba(xTest)
@@ -77,9 +77,7 @@ def main():
     yTest = yTest.to_numpy().flatten()
 
     KNN_PARAMETERS = {'n_neighbors': range(1, 48, 2)}
-    DT_PARAMETERS = {'min_samples_leaf': range(5, 20, 5),
-                     'max_depth': range(3, 10, 2),
-                     'criterion': ['gini', 'entropy']}
+    DT_PARAMETERS = {'min_samples_leaf': range(5, 20, 5), 'max_depth': range(3, 10, 2), 'criterion': ['gini', 'entropy']}
     print("KNN Results------------------------------------------------------------------")
     print(param_to_dt(KNeighborsClassifier(), KNN_PARAMETERS, xTrain, yTrain, xTest, yTest).to_markdown())
     print("DT Results--------------------------------------------------------------------")

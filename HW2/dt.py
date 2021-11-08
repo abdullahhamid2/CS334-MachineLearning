@@ -84,7 +84,7 @@ class DecisionTree(object):
         self.minLeafSample = minLeafSample
         self.tree = None
 
-    def grow_tree(self, xFeat, y, depth):
+    def decision_tree(self, xFeat, y, depth):
         length = y.value_counts()
         classification = length.idxmax()
         minLeaves = self.minLeafSample
@@ -95,23 +95,23 @@ class DecisionTree(object):
             return Node(xFeat, y, None, None, classification, None, None)
         else:
             for featName, feature in xFeat.iteritems():
-                for value in xFeat[featName].unique():
-                    leftX, leftY, rightX, rightY = split(xFeat, y, featName, value)
+                for index in xFeat[featName].unique():
+                    leftX, leftY, rightX, rightY = split(xFeat, y, featName, index)
                     if self.criterion == 'gini':
                         leftGini, rightGini = get_gini(leftY), get_gini(rightY)
                         averageG = (leftGini * len(leftY)
                                     + rightGini * len(rightY)) / len(y)
                         if(averageG < finalGini and averageG<1):
-                            finalGini, finalValue, finalFeature = averageG, value, featName
+                            finalGini, finalValue, finalFeature = averageG, index, featName
                     elif self.criterion == 'entropy':
                         entropy = (len(leftY)/len(y) * get_entropy(leftY))\
                                 + (len(rightY)/len(y) * get_entropy(rightY))
                         if(entropy < finalEntropy and entropy>0):
-                            finalValue, finalFeature, finalEntropy = value, featName, entropy
+                            finalValue, finalFeature, finalEntropy = index, featName, entropy
             tree = Node(xFeat, y, None, None, y.value_counts().idxmax(), finalFeature, finalValue)
             leftX, leftY, rightX, rightY = split(xFeat, y, finalFeature, finalValue)
-            tree.left = self.grow_tree(leftX, leftY, depth + 1)
-            tree.right = self.grow_tree(rightX, rightY, depth + 1)
+            tree.left = self.decision_tree(leftX, leftY, depth + 1)
+            tree.right = self.decision_tree(rightX, rightY, depth + 1)
         return tree
 
     def train(self, xFeat, y):
@@ -127,7 +127,7 @@ class DecisionTree(object):
         -------
         self : object
         """
-        self.tree = self.grow_tree(xFeat, y, 0)
+        self.tree = self.decision_tree(xFeat, y, 0)
         return self
 
     def predict(self, xFeat):
